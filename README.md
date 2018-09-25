@@ -1,5 +1,5 @@
 # csharp
-A place for me to store some of C# tooling for red team/pentesting efforts.
+A place for me to store some C# tooling for red team/pentesting efforts.
 
 ### ExecutionTesting.cs
 Usage: ExecutionTesting.exe <pid>
