@@ -105,7 +105,6 @@ namespace LogonSessionEnum
                 LsaFreeReturnBuffer(pSessionData);
             }
             LsaFreeReturnBuffer(pLuid);
-            Console.ReadLine();
         }
 
         [DllImport("Secur32.dll", SetLastError = false)]
