@@ -9,6 +9,8 @@ I've been using this for a while now within a C2 framework with some minor chang
 
 I *believe* this is the first public example of actually retrieving output from a process executed with another PID (Cobalt Strike can do it also). To achieve this I had to create a pipe with CreatePipe(), then use DuplicateHandle() to send a handle to the selected parent PID, then the new process should inherit that handle (due to STARTF_USESTDHANDLES) for the pipe and send stdout to the pipe. Our original process will then poll and read from that pipe. Would love to hear of any alternatives or better ways to achieve!
 
+Update 11-14-2019: Added mitigation policy to block non-Microsoft signed DLLs. This is similar to Cobalt Strike's `blockdlls` feature and was ported in from referencing [@xpn](https://twitter.com/_xpn_)'s great work which can be found [here](https://blog.xpnsec.com/protecting-your-malware/).
+
 ### LogonSessionEnum.cs
 Usage: `LogonSessionEnum.exe`
 
