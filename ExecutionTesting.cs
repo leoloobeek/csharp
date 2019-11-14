@@ -102,6 +102,10 @@ namespace ExecutionTesting
         {
             // STARTUPINFOEX members
             const int PROC_THREAD_ATTRIBUTE_PARENT_PROCESS = 0x00020000;
+            const int PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY = 0x00020007;
+
+            // Block non-Microsoft signed DLL's
+            const long PROCESS_CREATION_MITIGATION_POLICY_BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON = 0x100000000000;
 
             // STARTUPINFO members (dwFlags and wShowWindow)
             const int STARTF_USESTDHANDLES = 0x00000100;
@@ -153,16 +157,34 @@ namespace ExecutionTesting
                 if (parentProcessId > 0)
                 {
                     var lpSize = IntPtr.Zero;
-                    var success = InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref lpSize);
+                    var success = InitializeProcThreadAttributeList(IntPtr.Zero, 2, 0, ref lpSize);
                     if (success || lpSize == IntPtr.Zero)
                     {
                         return false;
                     }
 
                     siEx.lpAttributeList = Marshal.AllocHGlobal(lpSize);
-                    success = InitializeProcThreadAttributeList(siEx.lpAttributeList, 1, 0, ref lpSize);
+                    success = InitializeProcThreadAttributeList(siEx.lpAttributeList, 2, 0, ref lpSize);
                     if (!success)
                     {
+                        return false;
+                    }
+                    
+                    IntPtr lpMitigationPolicy = Marshal.AllocHGlobal(IntPtr.Size);
+                    Marshal.WriteInt64(lpMitigationPolicy, PROCESS_CREATION_MITIGATION_POLICY_BLOCK_NON_MICROSOFT_BINARIES_ALWAYS_ON);
+
+                    // Add Microsoft-only DLL protection
+                    success = UpdateProcThreadAttribute(
+                        siEx.lpAttributeList,
+                        0,
+                        (IntPtr)PROC_THREAD_ATTRIBUTE_MITIGATION_POLICY,
+                        lpMitigationPolicy,
+                        (IntPtr)IntPtr.Size,
+                        IntPtr.Zero,
+                        IntPtr.Zero);
+                    if (!success)
+                    {
+                        Console.WriteLine("[!] Failed to set process mitigation policy");
                         return false;
                     }
 
